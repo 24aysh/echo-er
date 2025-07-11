@@ -12,6 +12,7 @@ const MONGOOSE_URL = process.env.MONGOOSE_URL;
 mongoose.connect(MONGOOSE_URL)
 exports.signUp = async (req, res) => {
     try {
+        
         const requiredBody = z.object({
                 email:z.string().email(),
                 username:z.string().min(5).max(20),
@@ -22,12 +23,23 @@ exports.signUp = async (req, res) => {
             res.status(403).json({
                 error:parseData.error.issues.map(issue => issue.message)
             })
-            
             return
         }
         const username = req.body.username;
         const email = req.body.email;
         const password = req.body.password;
+        const existingUser = await userModel.findOne({
+            $or: [{ username }, { email }]
+        });
+
+        if (existingUser) {
+            let error = "";
+
+            if (existingUser.username == username) error+="Username used hai bhai\n";
+            if (existingUser.email == email) error+="Email bhi usedhaibhai";
+
+            return res.status(409).json({ Existing:error });
+        }
         try{
             const hashPass  = await bcrypt.hash(password,5)
             await userModel.create({
@@ -40,7 +52,7 @@ exports.signUp = async (req, res) => {
                 rooms:{}
             })
             res.status(200).json({
-            Success:"Account created"
+                Success:"Account created"
             })
         }
         catch(e){

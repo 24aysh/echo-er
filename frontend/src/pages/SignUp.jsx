@@ -36,40 +36,44 @@ export function SignUp() {
         };
         const response = await fetch(SIGNUP_URL,requestOptions)
         const data = await response.json()
-        
-        
+
         if(data.Success){
           
           try{
             const params = new URLSearchParams({ email });
-            const response = await fetch(`${SEND_OTP_URL}?${params.toString()}`); 
             alert("Sending OTP, you will be redirected")
+            const response = await fetch(`${SEND_OTP_URL}?${params.toString()}`); 
             const data = await response.json()
             navigate('/verify', { state: { email,otp:data.otp,username} });
-    
-          
           }catch(e){
             alert("Some internal Error")
           }
-         
-          
-
+        } else if(data.Existing){
+          let errors = ""
+          if (data.Existing.includes("Email")){
+            errors+="Email already in use\n"
+          }
+          if(data.Existing.includes("Username")){
+            errors+="Username already in use"
+          }
+          alert(errors)
         }
-        else{
-          
-          let pretty = ""
-          const message = (data.error[0] + "::" + data.error[1] + "::"+data.error[2])
-          
-          if(message.includes("email")){
-            pretty += "Invalid Email\n"
+        else {
+          let pretty = "";
+          const message = (data.error[0] + "::" + data.error[1] + "::"+data.error[2]);
+          if (message.includes("email")) {
+            pretty += "Invalid Email or already used\n";
           }
-          if(message.includes("5")){
-            pretty += "Username must be atleast 5 chars long\n"
+          if (message.includes("Username already exists")) {
+            pretty += "Username is already taken\n";
           }
-          if(message.includes("10")){
-            pretty += "Password should be atleast 10 chars long\n"
+          if (message.includes("5")) {
+            pretty += "Username must be at least 5 chars long\n";
           }
-          alert(pretty)
+          if (message.includes("10")) {
+            pretty += "Password should be at least 10 chars long\n";
+          }
+          alert(message);
         }
 
       }
