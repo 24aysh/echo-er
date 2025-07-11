@@ -45,5 +45,7 @@ app.use("/room", roomRoutes);
 app.use("/search", searchRoute);
 app.use("/chat", chatRoutes);
 
-server.listen(3001, () => {
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
