@@ -73,7 +73,7 @@ export function SignUp() {
           if (message.includes("10")) {
             pretty += "Password should be at least 10 chars long\n";
           }
-          alert(message);
+          alert(pretty);
         }
 
       }
