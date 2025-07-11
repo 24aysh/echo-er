@@ -4,11 +4,10 @@ import {ChatBubbleYou} from "./ChatBubbleYou";
 import { Profile } from './Profile';
 import React from 'react';
 export const ChatInterface = React.memo(function ChatInterface({ user, personName, onSend, reference, messages }) {
-  function getTimeStamp(key,user){
-    const lenUser = user.length;
-    const lenKey = key.length;
+  function getTimeStamp(key){
     
-    const date = new Date(parseInt(key.slice(0,lenKey-lenUser))); 
+    
+    const date = new Date(parseInt(key.slice(0,13))); 
     let hours = date.getHours();
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -32,9 +31,9 @@ export const ChatInterface = React.memo(function ChatInterface({ user, personNam
         {messages &&
           Object.entries(messages).reverse().map(([key, message]) => (
             (key.slice(13)==user) ? (
-              <ChatBubbleYou key={key} user={user} message={message} now={getTimeStamp(key,user)} />
+              <ChatBubbleYou key={key} user={user} message={message} now={getTimeStamp(key)} />
             ) : (
-              <ChatBubbleTo key={key} user={personName} message={message} now={getTimeStamp(key,user)} />
+              <ChatBubbleTo key={key} user={personName} message={message} now={getTimeStamp(key)} />
             )
           ))
         }

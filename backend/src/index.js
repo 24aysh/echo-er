@@ -14,6 +14,11 @@ const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 
+// app.use(cors({
+//   origin: 'https://your-frontend.onrender.com',
+//   methods: ['GET', 'POST'],
+//   credentials: true
+// }));
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(bodyParser.json());

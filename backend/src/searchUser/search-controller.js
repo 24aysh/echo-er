@@ -35,6 +35,7 @@ exports.addUser = async (req, res) => {
     if (!username || !newRoomName) {
       return res.status(400).json({ error: "Missing username or newRoomName" });
     }
+
     const timeStamp = String(Date.now()) + otherPerson;
     const update = {
       [`rooms.${newRoomName}`]: {
@@ -42,14 +43,18 @@ exports.addUser = async (req, res) => {
       },
     };
 
-    
     const response = await room.updateOne(
-      { username: username },
-      { $set: update }
+      {
+        username: username,
+        [`rooms.${newRoomName}`]: { $exists: false } 
+      },
+      {
+        $set: update
+      }
     );
 
     if (response.modifiedCount === 0) {
-      return res.status(404).json({ error: "User not found or room already exists" });
+      return res.status(409).json({ error: "Room already exists or user not found" });
     }
 
     return res.status(200).json({ message: "Room added successfully" });
