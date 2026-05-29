@@ -5,6 +5,7 @@ import {SignUp} from './pages/SignUp'
 import { SignIn } from './pages/SignIn';
 import { Home } from './pages/Home';
 import {Revoked} from './pages/Revoked';
+import { VideoCall } from './pages/VideoCall';
 function App() {
 
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path='/signup' element={<SignUp/>}></Route>
         <Route path='/signin' element={<SignIn/>}></Route>
         <Route path='/home' element={<Home/>}></Route>
+        <Route path='/video/:roomID' element={<VideoCall/>}></Route>
         <Route path='/' element={<SignIn/>}></Route>
         <Route path='/revoked' element={<Revoked/>}></Route>
         

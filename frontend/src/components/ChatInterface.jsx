@@ -3,7 +3,7 @@ import { ChatBubbleTo } from './ChatBubbleTo';
 import {ChatBubbleYou} from "./ChatBubbleYou";
 import { Profile } from './Profile';
 import React from 'react';
-export const ChatInterface = React.memo(function ChatInterface({ user, personName, onSend, reference, messages }) {
+export const ChatInterface = React.memo(function ChatInterface({ user, personName, onSend, onVideoCall, reference, messages }) {
   function getTimeStamp(key){
     
     
@@ -25,7 +25,7 @@ export const ChatInterface = React.memo(function ChatInterface({ user, personNam
   return (
     <div className="bg-blue-500 flex-grow flex flex-col h-screen sleek-scrollbar">
       <div>
-        <Profile personName={personName}/>
+        <Profile personName={personName} onVideoCall={onVideoCall} />
       </div>
       <div className="flex flex-col-reverse overflow-y-auto flex-grow p-4 space-y-reverse space-y-2 no-scrollbar">
         {messages &&

@@ -1,4 +1,5 @@
-import { useEffect, useState,useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChatInterface } from '../components/ChatInterface';
 import { Welcome } from '../components/Welcome';
 import { ContactCard } from '../components/ContactCard';
@@ -13,6 +14,7 @@ const RECEIVE_MESSAGE_URL = import.meta.env.VITE_RECEIVE_MESSAGE_URL;
 const UPDATE_MESSAGE_URL = import.meta.env.VITE_UPDATE_MESSAGE_URL;
 
 export function Home() {
+  const navigate = useNavigate();
   const [room, setRoom] = useState([]);
   const [currentMessage,setCurrentMessage] = useState({})
   const [activePersonRoom, setActivePerson] = useState("");
@@ -125,7 +127,71 @@ export function Home() {
     const [userA, userB] = rName.split("#");
     return userA === username ? userB : userA;
   }
-  
+
+  async function sendChatMessage(messageToSend) {
+    if (!activePersonRoom || !messageToSend || !socketRef.current) return;
+
+    socketRef.current.emit("private", {
+      to: activePersonRoom,
+      message: messageToSend,
+    });
+
+    const newKey = `${Date.now()}${username}`;
+
+    setCurrentMessage((prevMessages) => ({
+      ...prevMessages,
+      [newKey]: messageToSend,
+    }));
+    setAllMessage((prevAll) => {
+      const updatedRoom = {
+        ...(prevAll[activePersonRoom] || {}),
+        [newKey]: messageToSend,
+      };
+      return {
+        ...prevAll,
+        [activePersonRoom]: updatedRoom,
+      };
+    });
+
+    const personName = getPersonNameFromRoom(activePersonRoom);
+    const requestOptionsForSenderDb = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fromUser: username,
+        username: username,
+        timeStamp: Date.now(),
+        to: personName,
+        message: messageToSend,
+      }),
+    };
+
+    const requestOptionsForReceiverDb = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fromUser: username,
+        username: personName,
+        timeStamp: Date.now(),
+        to: personName,
+        message: messageToSend,
+      }),
+    };
+
+    await fetch(`${UPDATE_MESSAGE_URL}?token=${JWT}`, requestOptionsForSenderDb);
+    await fetch(`${UPDATE_MESSAGE_URL}?token=${JWT}`, requestOptionsForReceiverDb);
+  }
+
+  async function startVideoCall() {
+    if (!activePersonRoom) return;
+    const personName = getPersonNameFromRoom(activePersonRoom);
+    const videoUrl = `${window.location.origin}/video/${encodeURIComponent(personName)}`;
+    const message = `Join my video call: ${videoUrl}`;
+
+    await sendChatMessage(message);
+    navigate(`/video/${encodeURIComponent(personName)}`);
+  }
+
 async function connectWithPersonToChatWith(withUser){
   if(socketRef.current){
     
@@ -155,57 +221,11 @@ async function connectWithPersonToChatWith(withUser){
   }
 }
 
-  async function messageSender(){
-    if(sendMessageBoxRef.current.value){
-      socketRef.current.emit('private', {
-        to: activePersonRoom,
-        message: sendMessageBoxRef.current.value
-      });
+  async function messageSender() {
+    if (sendMessageBoxRef.current?.value) {
       const messageToSend = sendMessageBoxRef.current.value;
-      const newKey = `${Date.now()}${username}`;
-      
-      setCurrentMessage(prevMessages => ({
-        ...prevMessages,
-        [newKey]: messageToSend
-      }));
-      setAllMessage(prevAll => {
-        const updatedRoom = {
-          ...(prevAll[activePersonRoom] || {}),
-          [newKey]: messageToSend
-        };
-        return {
-          ...prevAll,
-          [activePersonRoom]: updatedRoom
-        };
-      });
+      await sendChatMessage(messageToSend);
       sendMessageBoxRef.current.value = "";
-      
-      
-      const requestOptionsForSenderDb = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fromUser:username,
-          username: username,
-          timeStamp: Date.now(),
-          to: getPersonNameFromRoom(activePersonRoom),
-          message: messageToSend
-        })
-      };
-      
-      const requestOptionsForReceiverDb = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fromUser:username,
-          username: getPersonNameFromRoom(activePersonRoom),
-          timeStamp: Date.now(),
-          to: getPersonNameFromRoom(activePersonRoom),
-          message: messageToSend
-        })
-      };
-      await fetch(`${UPDATE_MESSAGE_URL}?token=${JWT}`, requestOptionsForSenderDb);
-      await fetch(`${UPDATE_MESSAGE_URL}?token=${JWT}`, requestOptionsForReceiverDb);
     }
   }
   async function fetchMessageFromDb(username, activePersonRoom) {
@@ -295,6 +315,7 @@ async function connectWithPersonToChatWith(withUser){
           <ChatInterface
             user={username}
             onSend={messageSender}
+            onVideoCall={startVideoCall}
             personName={getPersonNameFromRoom(activePersonRoom)}
             reference={sendMessageBoxRef}
             messages={currentMessage}

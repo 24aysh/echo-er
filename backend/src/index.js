@@ -8,6 +8,7 @@ const loginRoutes = require("../src/login/routes/loginRoutes");
 const roomRoutes = require("./room-chat/route/room-routes");
 const searchRoute = require("./searchUser/routes/search-routes");
 const chatRoutes = require("./chat-sockets/routes/chatRoute");
+const videoRoutes = require("./video/routes/video-routes");
 
 const app = express();
 const http = require("http");
@@ -49,6 +50,7 @@ app.use("/", loginRoutes);
 app.use("/room", roomRoutes);
 app.use("/search", searchRoute);
 app.use("/chat", chatRoutes);
+app.use("/video", videoRoutes);
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
