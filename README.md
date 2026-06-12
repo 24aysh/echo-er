@@ -18,7 +18,6 @@ graph TD
     Client -- WebSocket/Socket.IO --> Server
     Client -- WebRTC --> VideoService
     Server -- Mongoose --> DB
-    Server -- Redis Client --> Cache
 ```
 
 ### Components
