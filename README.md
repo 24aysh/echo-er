@@ -1,51 +1,91 @@
-# MERN Chat Application
+# Echo-er
 
-A real-time chat application built using the **MERN stack** (MongoDB, Express, React, Node.js) that supports instant messaging through **WebSockets** and traditional operations via **REST APIs**.
+A real-time chat application built using the MERN stack. It supports instant messaging through WebSockets and traditional operations via REST APIs.
 
-## Features
+## Architecture
 
-- OTP authentication and JWT authorization
-- Real-time messaging using WebSockets
-- User authentication and authorization
-- One-to-one chat functionality
-- Message persistence with MongoDB
-- REST APIs for user, chat, and message management
-- Responsive frontend built with React
-- Secure backend using Node.js and Express
+The system consists of a React frontend and a Node.js backend. The frontend communicates with the backend via REST APIs for standard operations and WebSockets for real-time messaging. MongoDB is used for persistent data storage, while Redis is utilized for caching or message brokering. Video communication is handled via ZegoCloud integrations.
 
-## Tech Stack
+```mermaid
+graph TD
+    Client[React Frontend]
+    Server[Node.js / Express Backend]
+    DB[(MongoDB)]
+    Cache[(Redis)]
+    VideoService[ZegoCloud]
 
-### Frontend
-- React
-- JavaScript (ES6+)
-- Axios
+    Client -- REST API --> Server
+    Client -- WebSocket/Socket.IO --> Server
+    Client -- WebRTC --> VideoService
+    Server -- Mongoose --> DB
+    Server -- Redis Client --> Cache
+```
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB (Mongoose)
-- WebSockets (Socket.IO)
+### Components
 
+- **Frontend**: React, Vite, TailwindCSS, Recoil, Socket.IO Client.
+- **Backend**: Node.js, Express, Socket.IO, Zod, JWT.
+- **Database**: MongoDB with Mongoose.
+- **External Services**: Redis, ZegoCloud, Nodemailer.
 
-## How It Works
-
-1. Users authenticate using REST APIs.
-2. After login, a WebSocket connection is established.
-3. Messages are exchanged in real time.
-4. Messages are stored in MongoDB.
-5. Chat history is fetched via REST APIs.
-
-## Installation
+## Local Project Setup
 
 ### Prerequisites
+
 - Node.js
 - MongoDB
+- Redis
 
+### Backend Setup
 
+1. Navigate to the backend directory.
+   ```bash
+   cd backend
+   ```
+2. Install dependencies.
+   ```bash
+   npm install
+   ```
+3. Configure environment variables. Create a `.env` file based on the required keys.
+   ```env
+   PORT=3001
+   MONGOOSE_URL=<your-mongodb-url>
+   JWT_SECRET=<your-jwt-secret>
+   FRONTEND_ORIGIN=http://localhost:5173
+   SMPT_HOST=smtp.gmail.com
+   SMPT_PORT=587
+   SMPT_MAIL=<your-email>
+   SMPT_APP_PASS=<your-app-password>
+   ```
+4. Start the backend server.
+   ```bash
+   node src/index.js
+   ```
 
-## Future Enhancements
+### Frontend Setup
 
-- Group chats
-- Typing indicators
-- Read receipts
-- File sharing
+1. Navigate to the frontend directory.
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies.
+   ```bash
+   npm install
+   ```
+3. Configure environment variables. Create a `.env` file based on the required keys.
+   ```env
+   VITE_GET_ROOM_URL=http://127.0.0.1:3001/room/getRooms
+   VITE_SEARCH_USER_URL=http://127.0.0.1:3001/search/findUser
+   VITE_ADD_USER_URL=http://127.0.0.1:3001/search/addUserToRoom
+   VITE_SOCKET_URL=http://localhost:3001
+   VITE_RECEIVE_MESSAGE_URL=http://127.0.0.1:3001/chat/receive
+   VITE_UPDATE_MESSAGE_URL=http://127.0.0.1:3001/chat/update
+   VITE_VERIFY_OTP_URL=http://127.0.0.1:3001/otp/verifyotp
+   VITE_SIGNIN_URL=http://127.0.0.1:3001/signin
+   VITE_SIGNUP_URL=http://127.0.0.1:3001/signup
+   VITE_SEND_OTP_URL=http://127.0.0.1:3001/otp/sendotp
+   ```
+4. Start the development server.
+   ```bash
+   npm run dev
+   ```
